@@ -1,0 +1,11 @@
+[project]
+name = "estampador-facturas-arca"
+version = "0.1.0"
+description = "Aplicación para estampar logos en facturas PDF de ARCA/AFIP"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "streamlit>=1.30.0",
+    "pymupdf>=1.23.0",
+    "pillow>=10.0.0",
+]
