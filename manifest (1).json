@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Estampador Facturas ARCA",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Facturas ARCA",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "description": "Estampador de logos"
+}
