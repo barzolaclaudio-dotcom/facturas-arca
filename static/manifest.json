@@ -2,18 +2,18 @@
   "name": "Facturas ARCA Logo",
   "short_name": "Facturas ARCA",
   "description": "Estampador de logos para facturas PDF de ARCA/AFIP",
-  "start_url": "/",
+  "start_url": "https://facturas-arca-gk4elwfi8qyuw6bbstybcn.streamlit.app",
   "display": "standalone",
   "background_color": "#1E3A8A",
   "theme_color": "#1E3A8A",
   "icons": [
     {
-      "src": "/app/static/icon-192.png",
+      "src": "https://raw.githubusercontent.com/barzolaclaudio-dotcom/facturas-arca/main/static/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/app/static/icon-512.png",
+      "src": "https://raw.githubusercontent.com/barzolaclaudio-dotcom/facturas-arca/main/static/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
