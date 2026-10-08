@@ -1,9 +1,11 @@
-﻿{
-  "name": "Facturas ARCA Logo",
+{
+  "name": "Facturas ARCA",
   "short_name": "Facturas ARCA",
   "description": "Estampador de logos para facturas PDF de ARCA/AFIP",
-  "start_url": "./index.html",
+  "start_url": "/facturas-arca/",
+  "scope": "/facturas-arca/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
@@ -21,4 +23,3 @@
     }
   ]
 }
-

@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Estampador de Logos ARCA</title>
+  <title>Facturas ARCA</title>
+  
   <link rel="manifest" href="static/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="static/icon-192.png">
   <link rel="apple-touch-icon" href="static/icon-512.png">
-  <meta name="theme-color" content="#1E3A8A">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+
   <style>
     body, html {
       margin: 0;
@@ -14,16 +20,28 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #1E3A8A;
+      background-color: #000000;
     }
     iframe {
       width: 100%;
       height: 100%;
       border: none;
+      display: block;
     }
   </style>
 </head>
 <body>
   <iframe src="https://facturas-arca-gk4elwfi8qyuw6bbstybcn.streamlit.app?embed=true"></iframe>
+
+  <script>
+    // Registrar el Service Worker necesario para habilitar "Instalar aplicación" en Chrome
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('SW registrado exitosamente', reg))
+          .catch(err => console.error('Error al registrar SW', err));
+      });
+    }
+  </script>
 </body>
 </html>
