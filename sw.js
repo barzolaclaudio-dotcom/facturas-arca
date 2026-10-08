@@ -1,11 +1,14 @@
 // Service Worker para PWA instalable
-const CACHE_NAME = 'facturas-arca-v2';
+const CACHE_NAME = 'facturas-arca-v3';
 const ASSETS = [
   './',
   './index.html',
+  './manifest.json',
   './static/manifest.json',
   './static/icon-192.png',
-  './static/icon-512.png'
+  './static/icon-512.png',
+  './static/screenshot-1.png',
+  './static/screenshot-2.png'
 ];
 
 self.addEventListener('install', (event) => {
