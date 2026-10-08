@@ -4,7 +4,7 @@ import os
 import zipfile
 from PIL import Image
 
-# Coordenadas ajustadas a petición del usuario: X = 30.0, Y = 50.0
+# Coordenadas ajustadas: X = 30.0, Y = 50.0
 DEFAULT_ARCA_BBOX = {
     "x": 30.0,
     "y": 50.0,
@@ -22,24 +22,11 @@ def ensure_logos_dir():
 
 def list_saved_logos() -> dict[str, str]:
     """
-    Retorna un diccionario de {nombre_logo: ruta_archivo}.
-    Busca imágenes tanto en la raíz del proyecto como en la carpeta logos/
-    y organiza automáticamente las imágenes hacia logos/.
+    Retorna un diccionario de {nombre_logo: ruta_archivo} con los logos guardados por el usuario.
     """
     ensure_logos_dir()
-    valid_exts = (".png", ".jpg", ".jpeg", ".webp", ".bmp")
-    root_dir = os.path.dirname(__file__)
-
-    for fname in os.listdir(root_dir):
-        if fname.lower().endswith(valid_exts):
-            src_path = os.path.join(root_dir, fname)
-            dst_path = os.path.join(LOGOS_DIR, fname)
-            try:
-                os.replace(src_path, dst_path)
-            except Exception:
-                pass
-
     logos = {}
+    valid_exts = (".png", ".jpg", ".jpeg", ".webp", ".bmp")
     for fname in sorted(os.listdir(LOGOS_DIR)):
         if fname.lower().endswith(valid_exts):
             name_without_ext = os.path.splitext(fname)[0]
@@ -68,7 +55,7 @@ def delete_logo(logo_name: str) -> bool:
 def make_white_background_transparent(logo_bytes: bytes, tolerance: int = 240) -> bytes:
     """
     Convierte fondos blancos/casi blancos de imágenes JPG o PNG a transparentes
-    para evitar recuadros blancos feos sobre la factura.
+    para evitar recuadros blancos sobre la factura.
     """
     try:
         img = Image.open(io.BytesIO(logo_bytes)).convert("RGBA")
@@ -151,8 +138,7 @@ def add_logo_to_pdf(
     align: str = "left"
 ) -> bytes:
     """
-    Superpone el logo en las coordenadas especificadas manteniendo rigurosamente
-    la proporción original de la imagen (sin deformar).
+    Superpone el logo en las coordenadas especificadas manteniendo la proporción original de la imagen.
     """
     if transparent_bg:
         logo_bytes = make_white_background_transparent(logo_bytes)
@@ -200,7 +186,7 @@ def render_pdf_page_preview(
             transparent_bg=transparent_bg,
             align=align
         )
-        doc = fitz.open(stream=modified_pdf_bytes, filetype="pdf")
+        doc = fitz.open(stream=pdf_bytes if not modified_pdf_bytes else modified_pdf_bytes, filetype="pdf")
     else:
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
 

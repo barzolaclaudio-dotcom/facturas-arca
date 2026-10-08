@@ -21,35 +21,98 @@ st.set_page_config(
 )
 
 # Inyección de meta-etiquetas PWA para instalación móvil en Android, iPhone e iPad
-st.markdown("""
+_PWA_CSS = """
     <head>
         <link rel="manifest" href="/app/static/manifest.json">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Facturas ARCA">
-        <meta name="theme-color" content="#1E3A8A">
+        <meta name="theme-color" content="#000000">
     </head>
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+        --gold-300: #edcc55; --gold-400: #e8c132; --gold-500: #D4AF37; --gold-600: #b8951c;
+        --bg-card: #111113; --bg-tertiary: #18181b;
+        --text-tertiary: #a1a1aa;
+        --border: rgba(212,175,55,0.15); --border-hover: rgba(212,175,55,0.35);
+    }
+    html, body, [class*="css"], .stApp {
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+    .stApp {
+        background: radial-gradient(ellipse at top, rgba(212,175,55,0.08), transparent 55%), #000000;
+    }
+    header[data-testid="stHeader"] { background: transparent; }
+    [data-testid="stSidebar"] {
+        background: #09090b;
+        border-right: 1px solid var(--border);
+    }
+    h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', sans-serif; color: #fff; }
+
+    .brand {
+        display: inline-flex; align-items: baseline; gap: 8px;
+        font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+        font-size: 1.3rem; color: #fff; margin-bottom: 1.2rem;
+    }
+    .brand span {
+        font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+        color: var(--gold-500); font-size: 1.1rem;
+    }
     .main-title {
-        color: #1E3A8A;
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 0.2rem;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #fff; font-size: 2.4rem; font-weight: 800;
+        line-height: 1.2; margin-bottom: 0.4rem;
     }
-    .sub-title {
-        color: #4B5563;
-        font-size: 1.05rem;
-        margin-bottom: 1.5rem;
+    .main-title em {
+        font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+        background: linear-gradient(135deg, var(--gold-300), var(--gold-500), var(--gold-600));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .stButton>button {
-        border-radius: 8px;
-        font-weight: 600;
+    .sub-title { color: var(--text-tertiary); font-size: 1.05rem; margin-bottom: 1.8rem; }
+
+    /* Botones: dorado primario / contorno secundario */
+    .stButton>button, .stDownloadButton>button {
+        border-radius: 16px; font-weight: 600; padding: 0.7rem 1.4rem;
+        transition: all .3s cubic-bezier(.4,0,.2,1);
     }
+    .stButton>button[kind="primary"], .stDownloadButton>button[kind="primary"] {
+        color: #000; border: none;
+        background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-500) 40%, var(--gold-600) 70%, var(--gold-500) 100%);
+        box-shadow: 0 0 0 1px rgba(212,175,55,.5), 0 4px 24px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.3);
+    }
+    .stButton>button[kind="primary"]:hover, .stDownloadButton>button[kind="primary"]:hover {
+        transform: translateY(-2px) scale(1.02); filter: brightness(1.08); color: #000;
+        box-shadow: 0 0 0 2px rgba(212,175,55,.8), 0 8px 40px rgba(212,175,55,.5);
+    }
+    .stButton>button[kind="secondary"] {
+        color: var(--gold-400); background: transparent;
+        border: 1px solid rgba(212,175,55,.4);
+    }
+    .stButton>button[kind="secondary"]:hover {
+        background: rgba(212,175,55,.08); border-color: var(--gold-500);
+        color: var(--gold-300); transform: translateY(-2px);
+    }
+
+    /* Tarjetas y campos */
+    [data-testid="stFileUploader"] section, [data-testid="stAlert"] {
+        background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+    }
+    [data-testid="stFileUploader"] section:hover { border-color: var(--border-hover); }
+    [data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="base-input"] {
+        background: var(--bg-tertiary); border-radius: 8px;
+    }
+    [data-testid="stImage"] img { border-radius: 16px; border: 1px solid var(--border); }
+    hr { border-color: var(--border); }
     </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown("\n".join(l.strip() for l in _PWA_CSS.splitlines() if l.strip()), unsafe_allow_html=True)
 
 # Encabezado
-st.markdown('<div class="main-title">📄 Estampador de Logos para Facturas ARCA / AFIP</div>', unsafe_allow_html=True)
+st.markdown('<div class="brand">CB <span>Asesor Profesional</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">Estampador de Logos para <em>Facturas ARCA / AFIP</em></div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">Adjunta tus marcas o logos a las facturas electrónicas en formato PDF sin perder la calidad ni el formato original.</div>', unsafe_allow_html=True)
 
 ensure_logos_dir()

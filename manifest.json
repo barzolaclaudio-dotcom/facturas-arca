@@ -1,5 +1,5 @@
 ﻿{
-  "name": "Facturas ARCA Logo",
+  "name": "Estampador Facturas ARCA",
   "short_name": "Facturas ARCA",
   "description": "Estampador de logos para facturas PDF de ARCA/AFIP",
   "start_url": "./index.html",
