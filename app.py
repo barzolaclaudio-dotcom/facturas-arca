@@ -106,7 +106,33 @@ _PWA_CSS = """
     }
     [data-testid="stImage"] img { border-radius: 16px; border: 1px solid var(--border); }
     hr { border-color: var(--border); }
+
+    /* Ocultar elementos de Streamlit para experiencia App nativa */
+    #MainMenu { visibility: hidden; display: none; }
+    footer { visibility: hidden; display: none; }
+    header[data-testid="stHeader"] { visibility: hidden; display: none; }
+    [data-testid="stStatusWidget"] { visibility: hidden; display: none; }
+    .viewerBadge_container__r5tak, [data-testid="manage-app-button"] { display: none !important; }
     </style>
+    <script>
+    // Inyectar manifiesto e ícono dinámicamente en el documento principal
+    try {
+        let doc = window.parent ? window.parent.document : document;
+        let head = doc.head;
+        if (!head.querySelector("link[rel='manifest']")) {
+            let m = doc.createElement("link");
+            m.rel = "manifest";
+            m.href = "https://barzolaclaudio-dotcom.github.io/facturas-arca/static/manifest.json";
+            head.appendChild(m);
+        }
+        if (!head.querySelector("link[rel='apple-touch-icon']")) {
+            let icon = doc.createElement("link");
+            icon.rel = "apple-touch-icon";
+            icon.href = "https://barzolaclaudio-dotcom.github.io/facturas-arca/static/icon-512.png";
+            head.appendChild(icon);
+        }
+    } catch(e) {}
+    </script>
 """
 st.markdown("\n".join(l.strip() for l in _PWA_CSS.splitlines() if l.strip()), unsafe_allow_html=True)
 
