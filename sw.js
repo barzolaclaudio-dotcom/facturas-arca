@@ -1,5 +1,5 @@
 // Service Worker para PWA instalable
-const CACHE_NAME = 'facturas-arca-v3';
+const CACHE_NAME = 'facturas-arca-v4';
 const ASSETS = [
   './',
   './index.html',

@@ -142,98 +142,111 @@ st.markdown('<div class="main-title">Estampador de Logos para <em>Facturas ARCA 
 st.markdown('<div class="sub-title">Adjunta tus marcas o logos a las facturas electrónicas en formato PDF sin perder la calidad ni el formato original.</div>', unsafe_allow_html=True)
 
 ensure_logos_dir()
-
-# ==========================================
-# BARRA LATERAL: GALERÍA DE LOGOS Y POSICIÓN
-# ==========================================
-st.sidebar.header("🎨 Galería de Logos")
-
-# Obtener logos guardados (incluye auto-descubrimiento en raíz y en logos/)
 saved_logos = list_saved_logos()
 
-# Selector de Logo
-if saved_logos:
-    logo_options = ["-- Seleccionar Logo Guardado --"] + list(saved_logos.keys())
-    selected_logo_name = st.sidebar.selectbox("Elige un logo de tu galería:", logo_options)
-else:
-    st.sidebar.info("💡 No tienes logos guardados. ¡Sube uno abajo!")
-    selected_logo_name = "-- Seleccionar Logo Guardado --"
+# Valores por defecto para posición y formato
+pos_x = DEFAULT_ARCA_BBOX["x"]  # 30.0
+pos_y = DEFAULT_ARCA_BBOX["y"]  # 50.0
+pos_w = DEFAULT_ARCA_BBOX["width"]  # 150.0
+pos_h = DEFAULT_ARCA_BBOX["height"]  # 50.0
+logo_align = "left"
+apply_all_pages = True
+transparent_bg = False
 
-# Cargar bytes del logo seleccionado
+# ==========================================
+# PASO 1: SELECCIONAR O SUBIR LOGO (Flujo Principal)
+# ==========================================
+st.markdown("### 🎨 1. Logo para la Factura")
+
+col_logo_select, col_logo_preview = st.columns([3, 2])
+
+with col_logo_select:
+    if saved_logos:
+        logo_names = list(saved_logos.keys())
+        # Preseleccionar 'Logo CB' por defecto si existe
+        default_idx = logo_names.index("Logo CB") if "Logo CB" in logo_names else 0
+        selected_logo_name = st.selectbox(
+            "Elige un logo de tu galería:",
+            options=logo_names,
+            index=default_idx
+        )
+    else:
+        st.info("💡 No tienes logos guardados. Sube tu logo a continuación.")
+        selected_logo_name = None
+
 current_logo_bytes = None
 current_logo_path = None
 
-if selected_logo_name != "-- Seleccionar Logo Guardado --":
+if selected_logo_name and selected_logo_name in saved_logos:
     current_logo_path = saved_logos[selected_logo_name]
     with open(current_logo_path, "rb") as f:
         current_logo_bytes = f.read()
-    st.sidebar.image(current_logo_path, caption=f"Logo activo: {selected_logo_name}", use_container_width=True)
 
-    # Opción para eliminar logo guardado
-    if st.sidebar.button(f"🗑️ Eliminar '{selected_logo_name}'", type="secondary"):
-        if delete_logo(selected_logo_name):
-            st.sidebar.success(f"Logo '{selected_logo_name}' eliminado.")
-            st.rerun()
+with col_logo_preview:
+    if current_logo_path:
+        st.image(current_logo_path, caption=f"Logo activo: {selected_logo_name}", use_container_width=True)
 
-st.sidebar.divider()
-st.sidebar.subheader("➕ Subir Nuevo Logo")
-new_logo_file = st.sidebar.file_uploader("Subir imagen de logo (PNG, JPG, WEBP)", type=["png", "jpg", "jpeg", "webp"])
-logo_custom_name = st.sidebar.text_input("Nombre para la galería (ej: Mi Marca / Empresa B):")
+# Opciones para subir nuevo logo o administrar galería
+with st.expander("➕ Subir nuevo logo o administrar galería", expanded=False):
+    col_up1, col_up2 = st.columns([1, 1])
+    with col_up1:
+        st.markdown("##### Subir nuevo logo")
+        new_logo_file = st.file_uploader("Imagen del logo (PNG, JPG, WEBP):", type=["png", "jpg", "jpeg", "webp"], key="main_new_logo")
+        logo_custom_name = st.text_input("Nombre para la galería (ej: Mi Marca / Empresa B):", key="main_logo_name")
+        if new_logo_file and logo_custom_name.strip():
+            if st.button("💾 Guardar Logo en Galería", type="primary", key="btn_save_main_logo"):
+                ext = os.path.splitext(new_logo_file.name)[1]
+                save_name = f"{logo_custom_name.strip()}{ext}"
+                save_logo(save_name, new_logo_file.getvalue())
+                st.success(f"¡Logo '{logo_custom_name}' guardado!")
+                st.rerun()
+    with col_up2:
+        if selected_logo_name:
+            st.markdown(f"##### Eliminar logo actual")
+            st.write(f"¿Deseas quitar '{selected_logo_name}' de la galería?")
+            if st.button(f"🗑️ Eliminar '{selected_logo_name}'", type="secondary", key="btn_del_main_logo"):
+                if delete_logo(selected_logo_name):
+                    st.success(f"Logo eliminado.")
+                    st.rerun()
 
-if new_logo_file and logo_custom_name.strip():
-    if st.sidebar.button("💾 Guardar Logo en Galería", type="primary"):
-        ext = os.path.splitext(new_logo_file.name)[1]
-        save_name = f"{logo_custom_name.strip()}{ext}"
-        saved_path = save_logo(save_name, new_logo_file.getvalue())
-        st.sidebar.success(f"¡Logo '{logo_custom_name}' guardado en la galería!")
-        st.rerun()
-elif new_logo_file and not logo_custom_name.strip():
-    current_logo_bytes = new_logo_file.getvalue()
-    st.sidebar.caption("📌 Usando logo subido temporalmente.")
+# Ajustes de posición y formato avanzados
+with st.expander("⚙️ Ajustes avanzados de posición y formato (Opcional)", expanded=False):
+    preset_option = st.radio(
+        "Preajuste de ubicación:",
+        ["ARCA / AFIP Estándar (Horizontal 30, Vertical 50)", "Personalizado"],
+        horizontal=True
+    )
+    if preset_option == "ARCA / AFIP Estándar (Horizontal 30, Vertical 50)":
+        st.caption("📍 Coordenadas oficiales: Horizontal = 30, Vertical = 50.")
+    else:
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            pos_x = st.number_input("Horizontal (X):", min_value=0.0, max_value=600.0, value=30.0, step=2.0)
+        with c2:
+            pos_y = st.number_input("Vertical (Y):", min_value=0.0, max_value=800.0, value=50.0, step=2.0)
+        with c3:
+            pos_w = st.number_input("Ancho máx:", min_value=10.0, max_value=400.0, value=150.0, step=2.0)
+        with c4:
+            pos_h = st.number_input("Alto máx:", min_value=10.0, max_value=300.0, value=50.0, step=2.0)
 
-st.sidebar.divider()
-st.sidebar.header("⚙️ Ajustes de Posición y Proporción")
+    c_al, c_bg, c_pg = st.columns(3)
+    with c_al:
+        align_label = st.selectbox("Alineación dentro del recuadro:", ["Izquierda", "Centro", "Derecha"], index=0)
+        align_map = {"Izquierda": "left", "Centro": "center", "Derecha": "right"}
+        logo_align = align_map[align_label]
+    with c_bg:
+        transparent_bg = st.checkbox("Fondo blanco transparente", value=False, help="Quita fondo blanco en JPGs")
+    with c_pg:
+        apply_all_pages = st.checkbox("Aplicar a todas las hojas", value=True, help="Original, Duplicado, Triplicado")
 
-preset_option = st.sidebar.radio(
-    "Preajuste de ubicación:",
-    ["ARCA / AFIP Estándar (Horizontal 30, Vertical 50)", "Personalizado"]
-)
-
-if preset_option == "ARCA / AFIP Estándar (Horizontal 30, Vertical 50)":
-    pos_x = DEFAULT_ARCA_BBOX["x"]  # 30.0
-    pos_y = DEFAULT_ARCA_BBOX["y"]  # 50.0
-    pos_w = DEFAULT_ARCA_BBOX["width"]  # 150.0
-    pos_h = DEFAULT_ARCA_BBOX["height"]  # 50.0
-    st.sidebar.caption("📍 Coordenadas configuradas: Horizontal = 30, Vertical = 50.")
-else:
-    pos_x = st.sidebar.number_input("Posición Horizontal (X):", min_value=0.0, max_value=600.0, value=30.0, step=2.0)
-    pos_y = st.sidebar.number_input("Posición Vertical (Y):", min_value=0.0, max_value=800.0, value=50.0, step=2.0)
-    pos_w = st.sidebar.number_input("Ancho máximo:", min_value=10.0, max_value=400.0, value=150.0, step=2.0)
-    pos_h = st.sidebar.number_input("Alto máximo:", min_value=10.0, max_value=300.0, value=50.0, step=2.0)
-
-align_label = st.sidebar.radio("Alineación dentro del recuadro:", ["Izquierda", "Centro", "Derecha"], index=0)
-align_map = {"Izquierda": "left", "Centro": "center", "Derecha": "right"}
-logo_align = align_map[align_label]
-
-st.sidebar.subheader("Opciones de Formato")
-apply_all_pages = st.sidebar.checkbox(
-    "Aplicar logo a TODAS las hojas (Original, Duplicado, Triplicado)",
-    value=True,
-    help="Al estar activo, el logo aparecerá en las 3 páginas de la factura emitida por ARCA."
-)
-
-transparent_bg = st.sidebar.checkbox(
-    "Hacer transparente el fondo blanco del logo",
-    value=False,
-    help="Útil si tu logo es una imagen JPG con recuadro blanco y quieres que solo se vea el diseño."
-)
+st.divider()
 
 # ==========================================
-# ÁREA PRINCIPAL: CARGA Y PROCESAMIENTO
+# PASO 2: CARGA DE FACTURAS
 # ==========================================
-
+st.markdown("### 📥 2. Cargar Factura(s) PDF de ARCA / AFIP")
 uploaded_pdfs = st.file_uploader(
-    "📥 Selecciona o arrastra una o varias Facturas en PDF:",
+    "Selecciona o arrastra una o varias Facturas en PDF:",
     type=["pdf"],
     accept_multiple_files=True
 )
@@ -241,15 +254,14 @@ uploaded_pdfs = st.file_uploader(
 if not uploaded_pdfs:
     st.info("👆 Sube tus facturas PDF en el recuadro de arriba para comenzar.")
     st.markdown("""
-    ### ℹ️ ¿Cómo funciona?
-    1. **Sube tu logo** en la barra lateral izquierda (o selecciónalo si ya está guardado).
-    2. **Carga tus facturas PDF** de ARCA/AFIP arriba.
-    3. Revisa la **vista previa en tiempo real** (los logos cuadrados o rectangulares mantendrán exactamente su forma original en Horizontal 30, Vertical 50).
-    4. Descarga tu factura lista en PDF o descarga un archivo **ZIP** si procesaste varias facturas juntas.
+    ### ℹ️ Pasos para estampar tus facturas:
+    1. **Elige tu logo** en el Paso 1 de arriba (por defecto ya está seleccionado tu Logo CB).
+    2. **Carga tus facturas PDF** de ARCA/AFIP aquí.
+    3. Revisa la **vista previa** y descarga tu factura lista con tu marca.
     """)
 else:
     if not current_logo_bytes:
-        st.warning("⚠️ Selecciona o sube un logo en la barra lateral para estamparlo en la(s) factura(s).")
+        st.warning("⚠️ Selecciona o sube un logo en el Paso 1 para estamparlo en la(s) factura(s).")
     else:
         num_files = len(uploaded_pdfs)
 

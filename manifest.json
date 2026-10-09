@@ -1,7 +1,7 @@
 {
-  "name": "Facturas ARCA",
-  "short_name": "Facturas ARCA",
-  "description": "Estampador de logos para facturas PDF de ARCA/AFIP",
+  "name": "CB Asesor - Facturas ARCA",
+  "short_name": "CB Asesor",
+  "description": "Estampador de logos para facturas PDF de ARCA/AFIP - CBasesor.com",
   "id": "/facturas-arca/",
   "start_url": "index.html",
   "scope": "./",
@@ -46,14 +46,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Facturas ARCA en escritorio"
+      "label": "CB Asesor - Facturas ARCA en escritorio"
     },
     {
       "src": "static/screenshot-2.png",
       "sizes": "720x1280",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Facturas ARCA en móvil"
+      "label": "CB Asesor - Facturas ARCA en móvil"
     }
   ]
 }
