@@ -1,0 +1,16 @@
+name: Keep Streamlit App Alive
+
+on:
+  schedule:
+    # Se ejecuta todos los días a las 11:00 UTC (8:00 AM Argentina)
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Streamlit App
+        run: |
+          curl -s -L "https://facturas-arca-gk4elwfi8qyuw6bbstybcn.streamlit.app" > /dev/null
+          echo "Ping enviado con éxito a Streamlit Cloud para evitar modo reposo."
